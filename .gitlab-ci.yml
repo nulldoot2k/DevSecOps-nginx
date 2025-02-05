@@ -1,0 +1,15 @@
+variables:
+  CI_REGISTRY_IMAGE: ${CI_REGISTRY_IMAGE}
+  DOCKER_IMAGE: $DOCKER_REGISTRY/$CI_REGISTRY_IMAGE/$CI_PROJECT_NAME
+
+stages:
+  - build
+  - push
+
+build:
+stage: build
+script: |-
+  docker rm -f ${DOCKER_IMAGE}:latest 2>/dev/null || true
+  docker build -t ${DOCKER_IMAGE}:latest . 
+tags:
+  - devops-runner-prod
