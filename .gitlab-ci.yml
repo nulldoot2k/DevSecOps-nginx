@@ -6,13 +6,12 @@ stages:
   - build_image
   - scan_image
 
-before_script:
-  - |
-    apk add --update curl
-    curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s -- 
-    apk del curl 
-    rm -rf /var/cache/apk/*
-  - echo "$DCOKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
+# before_script:
+#   - |
+#     apk add --update curl
+#     curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s -- 
+#     apk del curl 
+#     rm -rf /var/cache/apk/*
 
 build:
   stage: build_image
