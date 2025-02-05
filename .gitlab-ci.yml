@@ -9,6 +9,7 @@ stages:
 build:
   stage: build_image
   script:
+    - echo "build images"
     - docker build -t ${DOCKER_IMAGE}:latest . 
   tags:
     - devops-runner-prod
