@@ -7,8 +7,8 @@ stages:
   - push
 
 build:
-stage: build
-script:
-  - docker build -t ${DOCKER_IMAGE}:latest . 
-tags:
-  - devops-runner-prod
+  stage: build
+  script:
+    - docker build -t ${DOCKER_IMAGE}:latest . 
+  tags:
+    - devops-runner-prod
