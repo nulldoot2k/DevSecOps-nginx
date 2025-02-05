@@ -3,12 +3,22 @@ variables:
   DOCKER_IMAGE: $DOCKER_REGISTRY/$CI_REGISTRY_IMAGE/$CI_PROJECT_NAME
 
 stages:
-  - build
-  - push
+  - build_image
+  - scan_image
 
 build:
-  stage: build
+  stage: build_image
   script:
     - docker build -t ${DOCKER_IMAGE}:latest . 
+  tags:
+    - devops-runner-prod
+
+scan:
+  stage: scan_image
+  script:
+    - echo "scan images"
+    - docker scout cves ${DOCKER_IMAGE}:latest --output ./vulns.report
+    - docker scout cves ${DOCKER_IMAGE}:latest --only-severity critical --exit-code
+    - docker scout sbom --output $APP_NAME.sbom ${DOCKER_IMAGE}:latest
   tags:
     - devops-runner-prod
