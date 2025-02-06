@@ -6,20 +6,32 @@ stages:
   - build_image
   - scan_image
 
+.before_script:
+  - |
+    if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
+      tag=""
+      echo "Running on default branch '$CI_DEFAULT_BRANCH': tag = 'latest'"
+    else
+      tag=":$CI_COMMIT_REF_SLUG"
+      echo "Running on branch '$CI_COMMIT_BRANCH': tag = $tag"
+    fi
+
 build:
   stage: build_image
   script:
     - echo "build images"
-    - docker build -t ${DOCKER_IMAGE}:latest . 
+    - docker build --pull -t ${DOCKER_IMAGE}:${tag} . 
   tags:
     - devops-runner-prod
 
 scan:
   stage: scan_image
   script:
-    - echo "scan images"
-    - docker scout cves ${DOCKER_IMAGE}:latest --output ./vulns.report
-    - docker scout cves ${DOCKER_IMAGE}:latest --only-severity critical --exit-code
-    - docker scout sbom --output $APP_NAME.sbom ${DOCKER_IMAGE}:latest
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
+        docker scout cves "$DOCKER_IMAGE${tag}" --exit-code --only-severity critical,high    
+      else
+        docker scout compare "$DOCKER_IMAGE${tag}" --to "$CI_REGISTRY_IMAGE:latest" --exit-code --only-severity critical,high --ignore-unchanged
+      fi
   tags:
     - devops-runner-prod
